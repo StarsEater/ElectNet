@@ -17,7 +17,9 @@ import torchnet as tnt
 import visdom
 import numpy as np
 import pickle
-data_root = "D:/study/EN/Electric-Err1/Sort4.0/Algorithm/multi_label/"
+# data_root = "D:/study/EN/Electric-Err1/Sort4.0/Algorithm/multi_label/"
+data_root = os.path.dirname(__file__)+"/"
+print("awsl",data_root)
 for file in os.listdir(data_root+"entity_dict/"):
     jieba.load_userdict(data_root+"entity_dict/"+file)
 
