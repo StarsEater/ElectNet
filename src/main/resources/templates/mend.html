@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>电网设备文本数据分析</title>
+    <meta name="description" content="">
+    <meta name="author" content="shuwan">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet'
+          type='text/css'>
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/templatemo-style.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="/static/js/echarts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-migrate-1.2.1.min.js"></script>
+    <!--  jQuery Migrate Plugin -->
+    <script type="text/javascript" src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/templatemo-script.js"></script>      <!-- Templatemo Script -->
+    <script type="text/javascript" src="/static/js/dataTool.js"></script>      <!-- dataTool Script -->
+    <script type="text/javascript" src="/static/js/bootstrap-select.js"></script>
+    <style>
+        .templatemo-site-header {
+            margin: 25px 30px 25px 0px;
+        }
+
+        .templatemo-content {
+            background: #e6e7e5
+        }
+
+        .templatemo-top-nav-container {
+            background: #f5efe3;
+            padding: 14px 40px;
+            color: black;
+            font-family: 'Open Sans', sans-serif;
+            -moz-box-shadow: 0px 1px 1px #888888; /* 老的 Firefox */
+            box-shadow: 0px 1px 1px #888888;
+        }
+
+        .templatemo-content-container {
+            padding: 70px 40px 0px 40px;
+            font-family: 'Open Sans', sans-serif;
+
+        }
+
+        .table > thead {
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .table > thead > tr {
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+            padding: 4px;
+        }
+
+        .datatable > thead {
+            background: #dfd3c3;
+            text-align: center;
+        }
+
+        .datatable > th {
+            background: #dfd3c3;
+            padding: 4px;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .datatable > tr {
+            border-color: #7A787E;
+            text-align: center;
+        }
+
+        div.date {
+            background: white;
+            border-radius: 4px;
+        }
+
+        .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+<!-- Left column -->
+<div class="templatemo-flex-row" id="content">
+
+
+    <!-- Main content -->
+    <div class="templatemo-content col-1 light-gray-bg">
+        <div class="templatemo-top-nav-container navbar-fixed-top">
+            <div class="row">
+                <h2 class="col-md-6">电网设备文本数据分析</h2>
+                <nav class="templatemo-top-nav col-lg-6 col-md-6" style="float:right">
+                    <ul class="text-uppercase">
+                        <li><a href="main.html">主页</a></li>
+                        <li><a href="search.html">报告检索</a></li>
+                        <li><a href="advice.html" >决策检索</a></li>
+                        <li><a href="mend.html"class="active">检修建议</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="templatemo-content-container">
+            <!--页面总高-->
+            <div class="row">
+                <div class="col-md-2" style="max-width: 500px">
+
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#problem_detect" data-toggle="tab">
+                                故障类型检测
+                            </a>
+                        </li>
+                        <li><a href="#mend_advice" data-toggle="tab">检修建议及源例推送</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+
+                        <div class="tab-pane fade in active" id="problem_detect">
+
+                            <label>故障文本</label>
+                            <textarea class="form-control" cols="20" rows="11" name="des_content"  placeholder="故障内容" ></textarea>
+                            <label>故障判定</label>
+                            <textarea class="form-control" cols="20" rows="2" placeholder="判定结果显示"></textarea>
+                            <button id="btn4" style="margin-top: 10px" class="btn btn-default">故障判定</button>
+
+
+                        </div>
+
+                        <div class="tab-pane fade " id="mend_advice">
+
+                            <form>
+                                <div class="form-group">
+                                    <label>设备类型</label><br/>
+                                    <select id="class" class="selectpicker" title="请选择设备类型" data-live-search="true"
+                                            data-size="5">
+                                        <option>避雷器</option>
+                                        <option>变压器</option>
+                                        <option>电缆</option>
+                                        <option>互感器</option>
+                                        <option>开关柜</option>
+                                        <option>开关设备</option>
+                                        <option>其他设备</option>
+                                        <option>输电线路</option>
+                                    </select><br/>
+                                    <label>部件</label><br/>
+                                    <select id="param" class="selectpicker" title="请选择部件" data-live-search="true" data-size="5">
+                                    </select><br/>
+                                    <label>故障</label><br/>
+                                    <input class="form-control" id="error" placeholder="">
+                                    <label>详细描述</label>
+                                    <textarea class="form-control" cols="20" rows="11" name="des" id = "des_detail" placeholder="详细描述"></textarea>
+                                </div>
+                            </form>
+                            <label>检修建议内容</label>
+                            <textarea class="form-control" cols="20" rows="11" name="des_content" id="des_content" placeholder="检修建议内容" ></textarea>
+                            <div style="width: 100%;">
+                                <button id="btn1" style="width: 45%"  class="btn btn-default">检修建议</button>
+                                <button id="btn2" style="width: 45%" class="btn btn-default" disabled ="disabled">源例推送</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-10" id="tableSpace">
+                    <table id="example" class="display cell-border datatable" style="width:100%"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script type="text/javascript">
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0,
+    });
+</script>
+<script th:inline="javascript" type="text/javascript">
+    $(document).ready(function () {
+        // var baseurl = [[${baseurl}]];
+        var baseurl = "http://" + window.location.host;
+        var dict = {};
+        $('#content').css('min-height',window.innerHeight);
+        $(window).resize(function() {
+            console.log("hello"+window.innerHeight);
+            $('#content').css('min-height',window.innerHeight);
+        });
+        function parseBracket(str) {
+            parsed = "";
+            ll = str.split("、");
+            for (var i in ll) {
+                parsed += ll[i].replace("(", "").replace(")", "") + "<br/>";
+            }
+            return parsed;
+        }
+
+        $("#btn1").click(function () {
+            var filter = {
+                desc:$("#des_detail").val()
+            };
+            for (var i in filter) {
+                if (filter[i] == '') {
+                    filter[i] = 'null';
+                }
+            }
+            console.log(filter);
+        //  接入算法检修模块
+            //请求成功
+            // $("#btn2").attr("disabled",false);
+
+            //请求失败
+            $.ajax({
+                type: "POST",
+                url: "http://127.0.0.1:8088" + "/advice",
+                crossDomain: true,
+                contentType: "application/json; charset=utf-8",
+                data:JSON.stringify({"desc":$("#des_detail").val()}),
+                dataType: "json",
+                success: function (response) {
+                    $("#des_content").html(response.data)
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+
+
+
+        });
+        $("#btn2").click(function () {
+            $("#btn2").attr("disabled",true);
+        });
+    });
+
+
+</script>
+</body>
+</html>

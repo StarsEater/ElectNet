@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>电网设备文本数据分析</title>
+    <meta name="description" content="">
+    <meta name="author" content="shuwan">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet'
+          type='text/css'>
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/templatemo-style.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="/static/js/echarts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-migrate-1.2.1.min.js"></script>
+    <!--  jQuery  Plugin -->
+    <script type="text/jMigrateavascript" src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/templatemo-script.js"></script>      <!-- Templatemo Script -->
+    <script type="text/javascript" src="/static/js/dataTool.js"></script>      <!-- dataTool Script -->
+    <script type="text/javascript" src="/static/js/bootstrap-select.js"></script>
+    <script type="text/javascript" src="/static/js/worldcloud.js"></script>
+    <!--<script type="text/javascript" src="/static/js/echarts-wordcloud.min.js"></script>-->
+    <style>
+        .templatemo-site-header {
+            margin: 25px 30px 25px 0px;
+        }
+
+        .templatemo-content {
+            background: #e6e7e5
+        }
+
+        .templatemo-top-nav-container {
+            background: #f5efe3;
+            padding: 14px 40px;
+            color: black;
+            font-family: 'Open Sans', sans-serif;
+            -moz-box-shadow: 0px 1px 1px #888888; /* 老的 Firefox */
+            box-shadow: 0px 1px 1px #888888;
+        }
+
+        .templatemo-content-container {
+            padding: 70px 40px 0px 40px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .templatemo-content-widget.mid-padding {
+            padding: 10px;
+        }
+
+        .no-padding {
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+<!-- Left column -->
+<div class="templatemo-flex-row" id="content">
+
+
+    <!-- Main content -->
+    <div class="templatemo-content col-1 light-gray-bg">
+        <div class="templatemo-top-nav-container navbar-fixed-top">
+            <div class="row">
+                <h2 class="col-md-6" font-size="200%">电网设备文本数据分析</h2>
+                <nav class="templatemo-top-nav col-lg-6 col-md-6" style="float:right">
+                    <ul class="text-uppercase">
+                        <li><a href="main.html" class="active">主页</a></li>
+                        <li><a href="search.html">报告检索</a></li>
+                        <li><a href="advice.html">决策检索</a></li>
+                        <li><a href="mend.html">检修建议</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="templatemo-content-container" style="min-height:800px">
+            <div class="row">
+                <div class="col-md-6 no-padding" style="height:calc(50vw - 40px);">
+                    <div class="templatemo-content-widget white-bg mid-padding" style="height:calc(100% - 20px);">
+                        <div id="relation-map" style="height:100%;">block3</div>
+                    </div>
+                </div>
+                <div class="col-md-6 no-padding" style="height:calc(50vw - 40px);">
+                    <div class="templatemo-content-widget white-bg mid-padding" style="height:calc(100% - 20px);">
+                        <div id="cloud-map" style="height:100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-4 no-padding">
+                    <div class="templatemo-content-widget white-bg mid-padding">
+                        <div id="pie-map" style="height:380px;min-width:200px"></div>
+                    </div>
+                </div>
+                <div class="col-md-4 no-padding">
+                    <div class="templatemo-content-widget white-bg mid-padding">
+                        <div id="bar-map" style="height:380px;min-width:200px"></div>
+                    </div>
+                </div>
+                <div class="col-md-4 no-padding">
+                    <div class="templatemo-content-widget white-bg mid-padding">
+                        <div id="bar-map-2" style="height:380px;min-width:200px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <center>
+            <footer>
+                <p style="color:black">Copyright &copy; 2019 北京邮电大学 | Designed by shuwan</p>
+            </footer>
+        </center>
+    </div>
+</div>
+<!-- JS -->
+<script src="/static/js/jquery-1.11.2.min.js"></script>      <!-- jQuery -->
+<script src="/static/js/jquery-migrate-1.2.1.min.js"></script> <!--  jQuery Migrate Plugin -->
+
+
+<script th:inline="javascript" type="text/javascript">
+    $(document).ready(function () {
+        //var baseurl = [[${baseurl}]];
+        var baseurl = "http://" + window.location.host;
+        var ChartRelation = echarts.init(document.getElementById('relation-map'));
+        var ChartCloud = echarts.init(document.getElementById('cloud-map'));
+        var ChartBar = echarts.init(document.getElementById('bar-map'));
+        var ChartPie = echarts.init(document.getElementById('pie-map'));
+        var ChartBar2 = echarts.init(document.getElementById('bar-map-2'));
+        //ChartRelation.showLoading();
+        var colors = ['#A09EA9', '#7A787E', '#dfd3c3', '#c7b198', '#596e79', '#d53a35'];
+        var legend = ['设备类别(大类)', '故障和解决方案', '设备类别（小类）', '投运年限', '解决建议', '时间和季节'];
+        var hide = ['12-14时', '15-20时', '5-8时', '风偏', '色谱分析', '碰线', '电缆终端', '色谱'];
+        var nodeMap = {};
+
+        $('#content').css('min-height',window.innerHeight);
+        $(window).resize(function() {
+            console.log("hello"+window.innerHeight);
+            $('#content').css('min-height',window.innerHeight);
+        })
+        $.ajax({
+            type: "GET",
+            url: baseurl + "/relation/getMap",
+            contentType: "application/json; charset=utf-8",
+            data: {},
+            dataType: "json",
+            success: function (response) {
+                console.log(response);
+                var dict = {};
+                var nodes = [];
+                for (var i = 0; i < response.nodes.length; i++) {
+                    let node = {}
+                    let x = response.nodes[i];
+                    node['name'] = x.name;
+                    node['value'] = parseInt(x.value);
+                    node['category'] = parseInt(x.category);
+                    for (var y in hide) {
+                        if (x.name == hide[y]) {
+                            node['label'] = {
+                                normal: {
+                                    show: false
+                                }
+                            };
+                            break;
+                        }
+                    }
+                    dict[x.name] = i;
+                    nodes.push(node);
+                }
+                var links = [];
+                for (var i = 0; i < response.links.length; i++) {
+                    let link = {}
+                    let x = response.links[i];
+                    link['source'] = dict[x.source];
+                    link['target'] = dict[x.target];
+                    links.push(link);
+                }
+                var categories = [];
+                for (var i = 0; i < response.category; i++) {
+                    let cate = {
+                        "name": legend[i],
+                        "itemStyle": {
+                            "normal": {
+                                "color": colors[i]
+                            }
+                        }
+                    };
+                    categories.push(cate);
+                }
+
+                console.log( "categories \n"+JSON.stringify(categories));
+                console.log("dict"+"\n"+JSON.stringify(dict));
+                console.log("nodes"+"\n"+JSON.stringify(nodes));
+                console.log("link"+"\n"+JSON.stringify(links));
+
+                nodeMap = response.words;
+                console.log("nodeMap"+"\n"+JSON.stringify(nodeMap));
+                option = {
+                    title: {
+                        text: '关系图谱'
+                    },
+                    tooltip: {
+                        formatter: function (x) {
+                            // console.log("see"+JSON.stringify(x));
+                            return x.data.name;
+                        }
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        x: 'left',
+                        top: 50,
+                        textStyle: {
+                            fontSize: 15
+                        },
+                        data: legend
+                    },
+                    animationDurationUpdate: 1500,
+                    animationEasingUpdate: 'quinticInOut',
+                    series: [{
+                        type: 'graph',
+                        tooltip: {},
+                        ribbonType: true,
+                        layout: 'circular',
+                        circular: {
+                            rotateLabel: true
+                        },
+                        symbolSize: 10,
+                        roam: true,
+                        focusNodeAdjacency: true,
+                        label: {
+                            normal: {
+                                position: 'right',
+                                fontWeight: 'bold',
+                                formatter: '{b}',
+                                normal: {
+                                    textStyle: {
+                                        fontFamily: '宋体'
+                                    }
+                                }
+                            }
+                        },
+                        edgeSymbol: ['circle'],
+                        edgeSymbolSize: [1, 6],
+                        itemStyle: {
+                            normal: {
+                                label: {
+                                    rotate: true,
+                                    show: true,
+                                    textStyle: {
+                                        color: '#000',
+                                        fontWeight: 'bold'
+                                    }
+                                },
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true
+                                }
+                            }
+                        },
+                        lineStyle: {
+                            normal: {
+                                curveness: 0.3
+                            }
+                        },
+                        data: nodes,
+                        links: links,
+                        categories: categories
+                    }]
+                };
+                ChartRelation.setOption(option);
+                optionC.series[0].data = $.parseJSON(nodeMap['global']);
+                // console.log("+++"+JSON.stringify($.parseJSON(nodeMap['global'])));
+                optionC.title.text = '全局关联关键词';
+                ChartCloud.setOption(optionC, true);
+            },
+            error: function (message) {
+                alert("提交数据失败！");
+            }
+        });
+
+        var maskImage = new Image();
+        maskImage.src = '/static/images/logo1.png';
+        var optionC = {
+            title: {
+                text: '故障关键词'
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                },
+                right: 30,
+                bottom: 30
+            },
+            series: [{
+                name: '',
+                type: 'wordCloud',
+                //size: ['9%', '99%'],
+                sizeRange: [20, 35],
+
+                rotationRange: [0, 0],
+                shape: 'circle',
+                maskImage: maskImage,
+                textPadding: 0,
+                autoSize: {
+                    enable: true,
+                    minSize: 6
+                },
+                textStyle: {
+                    normal: {
+                        color: function () {
+                            return 'rgb(' + [
+                                Math.round(Math.random() * 100 + 50),
+                                Math.round(Math.random() * 60 + 50),
+                                Math.round(Math.random() * 60 + 90)
+                            ].join(',') + ')';
+                        }
+                    },
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowColor: '#333'
+                    }
+                },
+                data: []
+            }]
+        };
+        maskImage.onload = function () {
+            //optionC.series[0].data = nodeMap[8];
+            ChartCloud.setOption(optionC);
+        };
+
+        ChartRelation.on('click', function (params) {
+            if (params.data.name.indexOf('>') > -1) // ???
+                return;
+            optionC.series[0].data = $.parseJSON(nodeMap[params.data.name]);
+            optionC.title.text = params.name + '关联关键词';
+            ChartCloud.setOption(optionC, true);
+            refresh(params.data.name);
+        });
+
+        function refresh(param) {
+            $.ajax({
+                type: "GET",
+                url: baseurl + "/report/countTime",
+                contentType: "application/json; charset=utf-8",
+                data: {keyword: param},
+                dataType: "json",
+                success: function (response) {
+                    console.log("time"+JSON.stringify(response));
+                    var legend = [];
+                    var data = [];
+                    for (var i = 0; i < response.length; i++) {
+                        legend.push(response[i].condition);
+                        var d = {};
+                        d["value"] = response[i].num;
+                        d["name"] = response[i].condition;
+                        // alert(JSON.stringify(d));
+                        data.push(d);
+                    }
+                    optionB.yAxis.data = legend;
+                    optionB.series[0].data = data;
+                    ChartBar.setOption(optionB, true);
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+            $.ajax({
+                type: "GET",
+                url: baseurl + "/report/countSeason",
+                contentType: "application/json; charset=utf-8",
+                data: {keyword: param},
+                dataType: "json",
+                success: function (response) {
+                    // console.log(response);
+                    var legend = [];
+                    var data = [];
+                    for (var i = 0; i < response.length; i++) {
+                        legend.push(response[i].condition);
+                        var d = {};
+                        d["value"] = response[i].num;
+                        d["name"] = response[i].condition;
+                        data.push(d);
+                    }
+                    optionP.legend.data = legend;
+                    optionP.series[0].data = data;
+                    ChartPie.setOption(optionP, true);
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+            $.ajax({
+                type: "GET",
+                url: baseurl + "/report/countVolt",
+                contentType: "application/json; charset=utf-8",
+                data: {keyword: param},
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);
+                    var legend = [];
+                    var data = [];
+                    for (var i = 0; i < response.length; i++) {
+                        legend.push(response[i].condition);
+                        var d = {};
+                        d["value"] = response[i].num;
+                        d["name"] = response[i].condition;
+                        data.push(d);
+                    }
+                    optionB2.yAxis.data = legend;
+                    optionB2.series[0].data = data;
+                    ChartBar2.setOption(optionB2, true);
+
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+        }
+
+        var optionB = {
+            title: {
+                text: '故障报告数量',
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                boundaryGap: [0, 0.01],
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+
+                        fontSize: '15'
+                    }
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: [],
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+
+                        fontSize: '15'
+                    }
+                }
+            },
+            series: [
+                {
+                    type: 'bar',
+                    data: [],
+                    itemStyle: {
+                        normal: {
+                            color: '#596e79'
+                        }
+                    }
+
+                }
+            ]
+        };
+        ChartBar.setOption(optionB);
+
+        var optionP = {
+            title: {
+                text: "故障季节",
+                right: 100
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {
+                        show: true
+                    },
+                    dataView: {
+                        show: true,
+                        readOnly: false
+                    },
+                    magicType: {
+                        show: true,
+                        type: ['pie', 'funnel']
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b}: {c} ({d}%)"
+            },
+            legend: {
+                orient: 'vertical',
+                x: 'left',
+                textStyle: {
+                    fontSize: 15
+                },
+                data: []
+            },
+            color: ['#dfd3c3', '#c7b198', '#a6aa9c', '#596e79', '#7A787E'],
+            series: [
+                {
+                    name: '故障季节',
+                    type: 'pie',
+                    radius: ['50%', '70%'],
+                    avoidLabelOverlap: false,
+                    center: [
+                        "60%",
+                        "60%"
+                    ],
+                    label: {
+                        normal: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            show: true,
+                            textStyle: {
+                                fontSize: '20',
+                                fontWeight: 'bold'
+                            }
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            show: false
+                        }
+                    },
+                    data: []
+                }
+            ]
+        };
+        ChartPie.setOption(optionP);
+
+        var optionB2 = {
+            title: {
+                text: '电压等级',
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                boundaryGap: [0, 0.01],
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+
+                        fontSize: '15'
+                    }
+                }
+            },
+            yAxis: {
+                type: 'category',
+                axisLabel: {
+                    show: true,
+                    textStyle: {
+
+                        fontSize: '15'
+                    }
+                },
+                data: []
+            },
+            series: [
+                {
+                    type: 'bar',
+                    data: [],
+                    itemStyle: {
+                        normal: {
+                            color: '#596e79'
+                        }
+                    }
+
+                }
+            ]
+        };
+        ChartBar2.setOption(optionB2);
+
+        refresh("");
+        window.onresize = function () {
+            ChartRelation.resize();
+            ChartCloud.resize();
+            ChartBar.resize();
+            ChartBar2.resize();
+            ChartPie.resize();
+        }
+    });
+</script>
+</body>
+</html>

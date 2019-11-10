@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>电网设备文本数据分析</title>
+    <meta name="description" content="">
+    <meta name="author" content="shuwan">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet'
+          type='text/css'>
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/templatemo-style.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="/static/js/echarts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-migrate-1.2.1.min.js"></script>
+    <!--  jQuery Migrate Plugin -->
+    <script type="text/javascript" src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/templatemo-script.js"></script>      <!-- Templatemo Script -->
+    <script type="text/javascript" src="/static/js/dataTool.js"></script>      <!-- dataTool Script -->
+    <script type="text/javascript" src="/static/js/bootstrap-select.js"></script>
+    <style>
+        .templatemo-site-header {
+            margin: 25px 30px 25px 0px;
+        }
+
+        .templatemo-content {
+            background: #e6e7e5
+        }
+
+        .templatemo-top-nav-container {
+            background: #f5efe3;
+            padding: 14px 40px;
+            color: black;
+            font-family: 'Open Sans', sans-serif;
+            -moz-box-shadow: 0px 1px 1px #888888; /* 老的 Firefox */
+            box-shadow: 0px 1px 1px #888888;
+        }
+
+        .templatemo-content-container {
+            padding: 70px 40px 0px 40px;
+            font-family: 'Open Sans', sans-serif;
+
+        }
+
+        .table > thead {
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .table > thead > tr {
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+            padding: 4px;
+        }
+
+        .datatable > thead {
+            background: #dfd3c3;
+            text-align: center;
+        }
+
+        .datatable > th {
+            background: #dfd3c3;
+            padding: 4px;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .datatable > tr {
+            border-color: #7A787E;
+            text-align: center;
+        }
+
+        div.date {
+            background: white;
+            border-radius: 4px;
+        }
+
+        .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<!-- Left column -->
+<div class="templatemo-flex-row" id="content">
+
+
+    <!-- Main content -->
+    <div class="templatemo-content col-1 light-gray-bg">
+        <div class="templatemo-top-nav-container navbar-fixed-top">
+            <div class="row">
+                <h2 class="col-md-6">电网设备文本数据分析</h2>
+                <nav class="templatemo-top-nav col-lg-6 col-md-6" style="float:right">
+                    <ul class="text-uppercase">
+                        <li><a href="main.html">主页</a></li>
+                        <li><a href="search.html">报告检索</a></li>
+                        <li><a href="advice.html" class="active">决策检索</a></li>
+                        <li><a href="mend.html">检修建议</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="templatemo-content-container">
+            <!--页面总高-->
+            <div class="row">
+                <div class="col-md-2" style="max-width: 300px">
+                    <div class="templatemo-site-header"><h2>检修决策检索</h2></div>
+                    <form>
+                        <div class="form-group">
+                            <label>设备类型</label><br/>
+                            <select id="class" class="selectpicker" title="请选择设备类型" data-live-search="true"
+                                    data-size="5">
+                                <option>避雷器</option>
+                                <option>变压器</option>
+                                <option>电缆</option>
+                                <option>互感器</option>
+                                <option>开关柜</option>
+                                <option>开关设备</option>
+                                <option>其他设备</option>
+                                <option>输电线路</option>
+                            </select><br/>
+                            <label>部件</label><br/>
+                            <select id="param" class="selectpicker" title="请选择部件" data-live-search="true" data-size="5">
+                            </select><br/>
+                            <label>故障</label><br/>
+                            <input class="form-control" id="error" placeholder="">
+                            <label for="reason">故障原因</label>
+                            <input class="form-control" id="reason" placeholder="">
+                            <label for="volt">电压等级</label>
+                            <input class="form-control" id="volt" placeholder="">
+                            <label for="temperature">温度</label>
+                            <input class="form-control" id="temperature" placeholder="">
+                            <label for="humidity">湿度</label>
+                            <input class="form-control" id="humidity" placeholder="">
+                        </div>
+                    </form>
+                    <button id="btn" class="btn btn-default">决策检索</button>
+                </div>
+                <div class="col-md-10" id="tableSpace">
+                    <table id="example" class="display cell-border datatable" style="width:100%"></table>
+                </div>
+            </div>
+        </div>
+
+        <center>
+            <footer>
+                <p style="color:black">Copyright &copy; 2019 北京邮电大学 | Designed by shuwan</p>
+            </footer>
+        </center>
+
+    </div>
+</div>
+<!-- JS -->
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script type="text/javascript">
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0,
+    });
+</script>
+<script th:inline="javascript" type="text/javascript">
+    $(document).ready(function () {
+        // var baseurl = [[${baseurl}]];
+        var baseurl = "http://" + window.location.host;
+        var dict = {};
+        $('#content').css('min-height',window.innerHeight);
+        $(window).resize(function() {
+            console.log("hello"+window.innerHeight);
+            $('#content').css('min-height',window.innerHeight);
+        })
+        $.ajax({
+            type: "GET",
+            url: baseurl + "/params/getParams",
+            contentType: "application/json; charset=utf-8",
+            data: {},
+            dataType: "json",
+            success: function (response) {
+                console.log("1"+response);
+                var data = response.dict;
+                dict = response.dict;
+                console.log(data);
+                if (JSON.stringify(data) == '{}') {
+                    alert('没有找到筛选条件');
+                    return;
+                }
+                $('#class').find('option').remove();
+                for (var i in data) {
+                    $("#class").append(new Option(i, i));
+                    //插件原因 需重绘UI
+                    $('#class').selectpicker('refresh');
+                }
+                var option = $("#class").val();
+                console.log("2"+dict[option]);
+                for (var i in dict[option]) {
+                    $("#param").append(new Option(i, i));
+                    //插件原因 需重绘UI
+                    $('#param').selectpicker('refresh');
+                }
+            },
+            error: function (message) {
+                alert("提交数据失败！");
+            }
+        });
+
+        $('#class').change(function () {
+            $('#param').find('option').remove();
+            // $('#describe').find('option').remove();
+            var option1 = $("#class").val();
+            console.log(dict[option1]);
+            for (var i in dict[option1]) {
+                $("#param").append(new Option(i, i));
+                //插件原因 需重绘UI
+                $('#param').selectpicker('refresh');
+            }
+        });
+
+        // $('#param').change(function(){
+        //     $('#describe').find('option').remove();
+        //     var option1 = $("#class").val();
+        //     var option2 = $("#param").val();
+        //     //console.log(dict[option]);
+        //     $("#describe").append(new Option("所有情况",""));
+        //     //插件原因 需重绘UI
+        //     $('#describe').selectpicker('refresh');
+        //     for(var i in dict[option1][option2]) {
+        //         $("#describe").append(new Option(dict[option1][option2][i],dict[option1][option2][i]));
+        //         //插件原因 需重绘UI
+        //         $('#describe').selectpicker('refresh');
+        //     }
+        //
+        // });
+
+        $("#btn").click(function () {
+            var filter = {
+                "设备类型": $('#class').val(),
+                "部件": $('#param').val(),
+                "故障": $('#error').val(),
+                "故障原因": $('#reason').val(),
+                "湿度": $('#humidity').val(),
+                "温度": $('#temperature').val(),
+                "电压等级": $('#volt').val()
+            };
+            for (var i in filter) {
+                if (filter[i] == '') {
+                    filter[i] = 'null';
+                }
+            }
+            console.log(filter);
+            var url = "http://" + window.location.hostname + ':5000';
+            console.log(url);
+            $.ajax({
+                type: "GET",
+                url: url,
+                crossDomain: true,
+                contentType: "application/json; charset=utf-8",
+                data: filter,
+                dataType: "jsonp",
+                jsonp: 'callback',
+                jsonpCallback: "successCallback",
+                success: function (response) {
+                    console.log(response);
+                    if (response.length == 0) {
+                        alert('没有找到报告');
+                        return;
+                    }
+                    dataSet = [];
+                    for (var i in response) {
+
+                        var report = response[i];
+                        var analyse = "";
+
+                        var obj1 = JSON.parse(report['诊断分析']);
+                        for (var i in obj1) {
+                            analyse += obj1[i] + '<br/>';
+                        }
+                        var obj2 = JSON.parse(report['检修决策']);
+                        var advice = "";
+                        advice += "是否停电：" + obj2[0] + '<br/>';
+                        advice += "检修类别：" + obj2[1] + '<br/>';
+                        advice += "检修内容：";
+                        for (var i in obj2[2]) {
+                            advice += obj2[2][i] + '<br/>';
+                        }
+
+                        row = [];
+                        row.push(report['设备类型']);
+                        row.push(report['部件']);
+                        row.push(report['状态描述']);
+                        row.push(analyse);
+                        row.push(advice);
+                        row.push(report['匹配度']);
+                        dataSet.push(row);
+                    }
+                    if ($.fn.dataTable.isDataTable('#example')) {
+                        realTable = $('#example').DataTable();
+                        var currentPage = realTable.page();  //该行是固定写死的
+                        realTable.clear();//清理原数据
+                        realTable.rows.add(dataSet); //添加新数据
+                        realTable.page(currentPage).draw(false);
+                    }
+                    else {
+                        $('#example').DataTable({
+                            data: dataSet,
+                            columns: [
+                                {title: "设备类型"},
+                                {title: "部件"},
+                                {title: "状态描述"},
+                                {title: "诊断分析"},
+                                {title: "检修决策"},
+                                {title: "匹配度"}
+                            ],
+                            bAutoWidth: false,
+                            columnDefs: [
+                                { "width": "60px", "targets": [0,1,2,5] }
+                            ],
+                            "order": [ [5, "desc"] ],
+                            "lengthMenu": [ [5, 10, 25, -1], [5, 10, 25, "所有"] ],
+                            "language": {
+                                "sProcessing": "处理中...",
+                                "sLengthMenu": "显示 _MENU_ 项结果",
+                                "sZeroRecords": "没有匹配结果",
+                                "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                                "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                                "sInfoPostFix": "",
+                                "sSearch": "搜索:",
+                                "sUrl": "",
+                                "sEmptyTable": "表中数据为空",
+                                "sLoadingRecords": "载入中...",
+                                "sInfoThousands": ",",
+                                "oPaginate": {
+                                    "sFirst": "首页",
+                                    "sPrevious": "上页",
+                                    "sNext": "下页",
+                                    "sLast": "末页"
+                                },
+                                "oAria": {
+                                    "sSortAscending": ": 以升序排列此列",
+                                    "sSortDescending": ": 以降序排列此列"
+                                }
+                            }
+                        });
+                    }
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+
+
+        });
+    });
+
+
+</script>
+</body>
+</html>

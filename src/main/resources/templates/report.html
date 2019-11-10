@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>电网设备文本数据分析</title>
+    <meta name="description" content="">
+    <meta name="author" content="shuwan">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet'
+          type='text/css'>
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/templatemo-style.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="/static/js/echarts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-migrate-1.2.1.min.js"></script>
+    <!--  jQuery Migrate Plugin -->
+    <script type="text/javascript" src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/templatemo-script.js"></script>      <!-- Templatemo Script -->
+    <!--<script type="text/javascript" src="/static/js/pdfmake.js"></script>      &lt;!&ndash; pdf Script &ndash;&gt;-->
+    <!--<script type="text/javascript" src="/static/js/vfs_fonts.js"></script>      &lt;!&ndash; pdf Script &ndash;&gt;-->
+    <!--<script type="text/javascript" src="/static/js/tableExport.js"></script>      &lt;!&ndash; pdf Script &ndash;&gt;-->
+    <script type="text/javascript" src="/static/js/jspdf.min.js"></script>
+    <style>
+        .templatemo-site-header {
+            margin: 25px 30px 25px 0px;
+        }
+
+        .templatemo-content {
+            background: #e6e7e5
+        }
+
+        .templatemo-top-nav-container {
+            background: #f5efe3;
+            padding: 14px 40px;
+            color: black;
+            font-family: 'Open Sans', sans-serif;
+            -moz-box-shadow: 0px 1px 1px #888888; /* 老的 Firefox */
+            box-shadow: 0px 1px 1px #888888;
+        }
+
+        .templatemo-content-container {
+            padding: 50px 40px 0px 40px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+            padding: 4px;
+        }
+
+        .datatable {
+            border: #1f2124;
+        }
+
+        .datatable > tbody > tr > th {
+            background: #dfd3c3;
+            padding: 4px;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .datatable > tbody > tr > td {
+            background: white;
+            padding: 4px;
+            text-align: center;
+            color: black;
+            font-weight: bolder;
+        }
+
+        .datatable > tr {
+            border-color: #7A787E;
+            text-align: center;
+        }
+
+        div.date {
+            background: white;
+            border-radius: 4px;
+        }
+        .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+            width: 100%;
+        }
+        .btn-add {
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<!-- Left column -->
+<div class="templatemo-flex-row" id="content">
+    <!-- Main content -->
+    <div class="templatemo-content col-1 light-gray-bg">
+        <div class="templatemo-top-nav-container navbar-fixed-top" >
+            <div class="row">
+                <h2 class="col-md-6" font-size="200%">电网设备文本数据分析</h2>
+                <nav class="templatemo-top-nav col-lg-6 col-md-6" style="float:right">
+                    <ul class="text-uppercase">
+                        <li><a href="../main.html">主页</a></li>
+                        <li><a href="../search.html">报告检索</a></li>
+                        <li><a href="../advice.html">决策检索</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="templatemo-content-container">
+            <!--//页面总高-->
+            <div class="row">
+                <div class="col-md-6">
+                    <div style="float: right;padding-top: 10px;margin-right: 20px;" class="row">
+                        <button id="save" class="btn btn-default">保存</button>
+                        <button id="export" class="btn btn-default">导出pdf</button>
+                    </div>
+                    <div style="text-align: center;height: 600px;overflow-y: auto;margin-top: 45px; " id="export_content" >
+                        <div id="report-title" class="templatemo-site-header">
+                            <center><h2 th:text="${report.report_name}"></h2></center>
+                        </div>
+                        <div id="tableSpace">
+
+                            <table id="example" class="table table-bordered datatable">
+                                <tbody>
+                                <tr>
+                                    <th>变电站名称</th>
+                                    <td id="substation" class="short-text" th:text="${report.substation}"></td>
+                                </tr>
+                                <tr>
+                                    <th>型号<button class="btn btn-default btn-xs btn-add"><span class="fa fa-plus"></span></button></th>
+                                    <td id="type_code" class="short-text" th:text="${report.type_code}"></td>
+                                </tr>
+                                <tr>
+                                    <th>塔号<button class="btn btn-default btn-xs btn-add"><span class="fa fa-plus"></span></button></th>
+                                    <td id="tower_code" class="short-text" th:text="${report.tower_code}"></td>
+                                </tr>
+                                <tr>
+                                    <th>投运时间</th>
+                                    <td id="use_time" class="short-text" th:text="${report.use_time}"></td>
+                                </tr>
+                                <tr>
+                                    <th>故障发现时间</th>
+                                    <td id="err_time" class="short-text" th:text="${report.err_time}"></td>
+                                </tr>
+                                <tr>
+                                    <th>其他时间<button class="btn btn-default btn-xs btn-add"><span class="fa fa-plus"></span></button></th>
+                                    <td id="extra_time" class="short-text" th:text="${report.extra_time}"></td>
+                                </tr>
+                                <tr>
+                                    <th>故障名称</th>
+                                    <td id="err_name" class="short-text" th:text="${report.err_name}">{ error_name }</td>
+                                </tr>
+                                <tr>
+                                    <th>故障时情况<button class="btn btn-default btn-xs btn-add"><span class="fa fa-plus"></span></button></th>
+                                    <td id="err_how" class="short-text" th:text="${report.err_how}">{
+                                        error_extra}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>测试环境温度</th>
+                                    <td id="temperature" class="short-text" th:text="${report.temperature}">{ temperature
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>测试环境湿度</th>
+                                    <td id="humidity" class="short-text" th:text="${report.humidity}">{ humidity }</td>
+                                </tr>
+                                <tr>
+                                    <th>生产厂家</th>
+                                    <td id="factory" class="short-text" th:text="${report.factory}">{ factory }</td>
+                                </tr>
+                                <tr>
+                                    <th>电压等级</th>
+                                    <td id="volt" class="short-text" th:text="${report.volt}">{ volt_level }</td>
+                                </tr>
+                                <tr>
+                                    <th>缺陷等级</th>
+                                    <td id="err_level" class="short-text" th:text="${report.err_level}">{ error_level }</td>
+                                </tr>
+                                <tr>
+                                    <th>设备类型</th>
+                                    <td id="device_type" class="short-text" th:text="${report.device_type}">{ device_type
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>现场情况</th>
+                                    <td id="situation" class="long-text" th:text="${report.situation}">{ condition }</td>
+                                </tr>
+                                <tr>
+                                    <th>故障描述</th>
+                                    <td id="description" class="long-text" th:text="${report.description}">{ describe }</td>
+                                </tr>
+                                <tr>
+                                    <th>故障分析过程</th>
+                                    <td id="analysis" class="long-text" th:text="${report.analysis}">{ analyse }</td>
+                                </tr>
+                                <tr>
+                                    <th>分析结论</th>
+                                    <td id="conclusion" class="long-text" th:text="${report.conclusion}">{ conclusion }</td>
+                                </tr>
+                                <tr>
+                                    <th>故障处理方式</th>
+                                    <td id="dispose" class="long-text" th:text="${report.dispose}">{ handle }</td>
+                                </tr>
+                                <tr>
+                                    <th>建议对策</th>
+                                    <td id="advice" class="long-text " th:text="${report.advice}">{ advice }</td>
+                                </tr>
+
+                                <tr>
+                                    <th>附件图片</th>
+                                    <td id="imgSpace">
+                                        <a id="load">加载图片</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+<!--                <div class="col-md-6"><iframe th:src="${pdf_src}" width="100%" height="640px" scrolling="yes">doc</iframe></div>-->
+                <div class="col-md-6" id="mend_advice" style="padding: 20px">
+
+                    <form>
+                        <div class="form-group">
+                            <label>设备类型</label><br/>
+                            <select id="class" class="form-control" title="请选择设备类型" data-live-search="true"
+                                    data-size="5" style="height: 4%; width:40%; margin-top: 10px">
+                                <option>避雷器</option>
+                                <option>变压器</option>
+                                <option>电缆</option>
+                                <option>互感器</option>
+                                <option>开关柜</option>
+                                <option>开关设备</option>
+                                <option>其他设备</option>
+                                <option>输电线路</option>
+                            </select><br/>
+                            <label>部件</label><br/>
+                            <select id="param" class="form-control" title="请选择部件" data-live-search="true" data-size="5" style="height: 4%; width:40%; margin-top: 10px">
+                            </select><br/>
+                            <label>故障</label><br/>
+                            <div style="width: 100%">
+                            <input class="form-control" id="error" placeholder="" style="height: 4%; width:40%; margin-top: 10px">
+                            <button id="btn0" style="width: 20% ; margin-top: 10px"  class="btn btn-default">故障检测</button>
+                            </div>
+                        </div>
+                    </form>
+                    <label>检修建议内容</label>
+                    <textarea class="form-control" cols="20" rows="11" name="des_content" id="des_content" placeholder="检修建议内容" style="width: 60%; margin-top: 10px"></textarea>
+                    <button id="btn1" style="width: 60%;margin-top: 10px"  class="btn btn-default">检修建议</button>
+                    <label style="width: 60%; margin-top: 40px" >源例推送</label>
+                    <button id="btn2" style="width: 60%; margin-top: 10px" class="btn btn-default">源例推送</button>
+                </div>
+            </div>
+            <center>
+                <footer>
+                    <p style="color:black">Copyright &copy; 2019 北京邮电大学 | Designed by shuwan</p>
+                </footer>
+            </center>
+
+        </div>
+    </div>
+</div>
+<!-- JS -->
+
+
+<script th:inline="javascript" type="text/javascript">
+    var baseurl = "http://" + window.location.host;
+    var report = [[${report}]];
+    console.log(baseurl);
+    console.log(report);
+    $(document).ready(function () {
+        // var baseurl = [[${baseurl}]];
+        var baseurl = "http://" + window.location.host;
+        var dict = {};
+        $('#content').css('min-height',window.innerHeight);
+        $(window).resize(function() {
+            console.log("hello"+window.innerHeight);
+            $('#content').css('min-height',window.innerHeight);
+        });
+        function parseBracket(str) {
+            parsed = "";
+            ll = str.split("、");
+            for (var i in ll) {
+                parsed += ll[i].replace("(", "").replace(")", "") + "<br/>";
+            }
+            return parsed;
+        }
+
+        $("#btn1").click(function () {
+            var filter = {
+                "desc":report["advice"] + report["analysis"] + report["conclusion"] +report["description"]
+            };
+            console.log("desc"+filter);
+            //  接入算法检修模块
+            //请求成功
+            // $("#btn2").attr("disabled",false);
+
+            //请求失败
+            $.ajax({
+                type: "POST",
+                url: "http://127.0.0.1:8088" + "/advice",
+                crossDomain: true,
+                contentType: "application/json; charset=utf-8",
+                data:JSON.stringify(filter),
+                dataType: "json",
+                success: function (response) {
+                    $("#des_content").html(response.data)
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+
+
+
+        });
+        $("#btn2").click(function () {
+            $("#btn2").attr("disabled",true);
+        });
+    });
+
+</script>
+<script type="text/javascript" src="/static/js/report.js"></script>
+</body>
+</html>
