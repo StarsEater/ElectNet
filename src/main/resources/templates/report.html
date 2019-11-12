@@ -254,7 +254,7 @@
                     <textarea class="form-control" cols="20" rows="11" name="des_content" id="des_content" placeholder="检修建议内容" style="width: 60%; margin-top: 10px"></textarea>
                     <button id="btn1" style="width: 60%;margin-top: 10px"  class="btn btn-default">检修建议</button>
                     <label style="width: 60%; margin-top: 40px" >源例推送</label>
-                    <button id="btn2" style="width: 60%; margin-top: 10px" class="btn btn-default">源例推送</button>
+                    <button id="btn2"  target="_blank "style="width: 60%; margin-top: 10px" onclick ="exampleSearch()"  class="btn btn-default">源例推送</button>
                 </div>
             </div>
             <center>
@@ -274,10 +274,15 @@
     var report = [[${report}]];
     console.log(baseurl);
     console.log(report);
+    function exampleSearch(){
+        window.location.href = baseurl +"/report/example";
+        console.log(baseurl +"/report/example")
+    }
     $(document).ready(function () {
         // var baseurl = [[${baseurl}]];
         var baseurl = "http://" + window.location.host;
         var dict = {};
+
         $('#content').css('min-height',window.innerHeight);
         $(window).resize(function() {
             console.log("hello"+window.innerHeight);
@@ -296,7 +301,7 @@
             var filter = {
                 "desc":report["advice"] + report["analysis"] + report["conclusion"] +report["description"]
             };
-            console.log("desc"+filter);
+            console.log(filter);
             //  接入算法检修模块
             //请求成功
             // $("#btn2").attr("disabled",false);
@@ -320,9 +325,7 @@
 
 
         });
-        $("#btn2").click(function () {
-            $("#btn2").attr("disabled",true);
-        });
+
     });
 
 </script>

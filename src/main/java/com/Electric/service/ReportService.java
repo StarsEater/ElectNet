@@ -49,11 +49,26 @@ public class ReportService {
 
     // 故障报告详情
     public ErrorReport getFullReport(String id){
+        HashMap<String,Object> res = new HashMap<>();
         List<ErrorReport> reports = null;
         reports = mapper.selectErrorReportByID(id);
         return reports.get(0);
     }
-
+    public ResponseEntity<Map<String,Object>> getExampleBy_id(List<String> id){
+        HashMap<String,Object> res = new HashMap<>();
+        List<ErrorReport> reports = null;
+        String ns = "";
+        for(String x:id){
+            ns += "\""+x+"\""+",";
+        }
+        ns += "\"\"";
+        System.out.println("ids" + ns);
+        reports = mapper.selectExampleByID(ns);
+        res.put("reports",reports);
+        res.put("succeed",1);
+        res.put("message","success");
+        return new ResponseEntity<>(res,HttpStatus.OK);
+    }
     public ResponseEntity<List<ErrorReportPics>> getReportPic(String id){
         return new ResponseEntity<>(mapper.getErrorReportPicsByID(id), HttpStatus.ACCEPTED);
     }

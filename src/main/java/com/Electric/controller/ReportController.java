@@ -5,6 +5,7 @@ import com.Electric.model.ErrorReport;
 import com.Electric.model.ErrorReportPics;
 import com.Electric.service.ReportService;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -97,7 +98,19 @@ public class ReportController {
         model.addAttribute("pdf_src",src.replace("#","-"));
         return "report";
     }
+    @RequestMapping(value = "/example",method = RequestMethod.GET)
+    public String getExample( Model model){
+        System.out.println("web123");
+        model.addAttribute("baseurl", baseurl);
+        return "example";
+    }
 
+
+    @RequestMapping(value = "/example/list",method = RequestMethod.POST)
+    public ResponseEntity<Map<String,Object>> getExampleById(@RequestBody JSONObject jsonObject){
+        System.out.println("wh"+"");
+        return reportService.getExampleBy_id((List<String>) jsonObject.get("id"));
+    }
     @RequestMapping(value = "/export/{id}",method = RequestMethod.GET)
     public String getExportHtmlById(@PathVariable String id, Model model){
         //reportService.getFullReport(id);

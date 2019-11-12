@@ -59,12 +59,16 @@ public interface ErrorReportMapper {
             @Param("err_level") String err_levelgit
     );
 
-
     @Select("SELECT * " +
             "FROM electric_err " +
             "WHERE report_id = #{id};")
     List<ErrorReport> selectErrorReportByID(@Param("id") String id);
-
+    @Select("SELECT report_name,err_name,err_how,err_time,err_level,volt,device_type,type_code,tower_code,use_time,substation,report_id," +
+            "concat_ws('-',err_time_y,err_time_m) as err_search , " +
+            "concat_ws('-',use_time_y,use_time_m) as use_search  " +
+            "FROM electric_err " +
+            "WHERE report_id in (${id});")
+    List<ErrorReport> selectExampleByID(@Param("id") String id);
 
     // 对某个字段分组计数
     @Select("SELECT err_season as con, count(*) as num " +

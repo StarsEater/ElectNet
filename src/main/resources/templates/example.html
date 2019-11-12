@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>电网设备文本数据分析</title>
+    <meta name="description" content="">
+    <meta name="author" content="shuwan">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet'
+          type='text/css'>
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/templatemo-style.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="/static/js/echarts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-migrate-1.2.1.min.js"></script>
+    <!--  jQuery Migrate Plugin -->
+    <script type="text/javascript" src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/templatemo-script.js"></script>      <!-- Templatemo Script -->
+    <script type="text/javascript" src="/static/js/dataTool.js"></script>      <!-- dataTool Script -->
+    <script type="text/javascript" src="/static/js/bootstrap-select.js"></script>
+    <style>
+        .templatemo-site-header {
+            margin: 25px 30px 25px 0px;
+        }
+
+        .templatemo-content {
+            background: #e6e7e5
+        }
+
+        .templatemo-top-nav-container {
+            background: #f5efe3;
+            padding: 14px 40px;
+            color: black;
+            font-family: 'Open Sans', sans-serif;
+            -moz-box-shadow: 0px 1px 1px #888888; /* 老的 Firefox */
+            box-shadow: 0px 1px 1px #888888;
+        }
+
+        .templatemo-content-container {
+            padding: 70px 40px 0px 40px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .table > thead {
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .table > thead > tr {
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+            padding: 4px;
+        }
+
+        .datatable > thead {
+            background: #dfd3c3;
+            text-align: center;
+        }
+
+        .datatable > th {
+            background: #dfd3c3;
+            padding: 4px;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .datatable > tr {
+            border-color: #7A787E;
+            text-align: center;
+        }
+
+        div.date {
+            background: white;
+            border-radius: 4px;
+        }
+
+        .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="templatemo-flex-row" id="content">
+    <!-- Main content -->
+    <div class="templatemo-content col-1 light-gray-bg">
+        <div class="templatemo-top-nav-container navbar-fixed-top">
+            <div class="row">
+                <h2 class="col-lg-6 col-md-6">电网设备文本数据分析</h2>
+                <nav class="templatemo-top-nav col-lg-6 col-md-6" style="float:right">
+                    <ul class="text-uppercase">
+                        <li><a href="main.html">主页</a></li>
+                        <li><a href="search.html" class="active">报告检索</a></li>
+                        <li><a href="advice.html">决策检索</a></li>
+                        <li><a href="mend.html">检修建议</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="templatemo-content-container">
+
+            <div class="row">
+                <div class="col-md-12" id="tableSpace">
+                    <table id="example" class="display cell-border datatable" style="width:100%"></table>
+                </div>
+            </div>
+        </div>
+
+        <center>
+            <footer>
+                <p style="color:black">Copyright &copy; 2019 北京邮电大学 | Designed by shuwan</p>
+            </footer>
+        </center>
+
+    </div>
+</div>
+<!-- JS -->
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script type="text/javascript">
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 3,
+        minView: 3,
+        forceParse: 0,
+//        startView: 'months', //开始视图层，为月视图层
+//        maxViewMode:'years', //最大视图层，为年视图层
+//        minViewMode:'months', //最小视图层，为月视图层
+//        startDate:moment().subtract(11,'month').toDate(), //控制可选的最早月份，为前12个月（含当前月）
+//        endDate:moment().toDate() //控制可选的最晚月份，为当前月
+    });
+</script>
+<script th:inline="javascript" type="text/javascript">
+    var s = ["1","2"];
+    var filter = {
+        id: s
+    };
+    console.log(filter);
+    dataSet = [];
+
+
+    $(document).ready(function () {
+//        console.log([[${baseurl}]]);
+//         var baseurl = "http://localhost:443";
+        var baseurl = "http://" + window.location.host;
+        $('#content').css('min-height',window.innerHeight);
+        $(window).resize(function() {
+            console.log("hello"+window.innerHeight);
+            $('#content').css('min-height',window.innerHeight);
+        })
+        function parseBracket(str) {
+            parsed = "";
+            ll = str.split("、");
+            for (var i in ll) {
+                parsed += ll[i].replace("(", "").replace(")", "") + "<br/>";
+            }
+            return parsed;
+        }
+        $.ajax({
+            type: "POST",
+            url: baseurl + "/report/example/list",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(filter),
+            dataType: "json",
+            success: function (response) {
+                console.log(response);
+                var data = response.reports;
+                console.log(data);
+                if (data.length == 0) {
+                    alert('没有找到报告');
+                    return;
+                }
+
+                for (var i in data) {
+                    var report = data[i];
+                    row = [];
+                    row.push(report.substation);
+                    row.push(parseBracket(report.type_code));
+                    row.push(parseBracket(report.tower_code));
+                    row.push(report.use_time);
+                    row.push(report.report_name);
+                    row.push(report.err_time);
+                    row.push(report.err_name);
+                    row.push(report.err_how);
+                    row.push(report.volt);
+                    row.push(report.err_level);
+                    row.push(report.device_type);
+                    row.push('<a href="' + baseurl + '/report/detail/' + report.report_id + '" target="_blank">点击跳转</a>');
+                    dataSet.push(row);
+                }
+                if ($.fn.dataTable.isDataTable('#example')) {
+                    realTable = $('#example').DataTable();
+                    var currentPage = realTable.page();  //该行是固定写死的
+                    realTable.clear();//清理原数据
+                    realTable.rows.add(dataSet); //添加新数据
+                    realTable.page(currentPage).draw(false);
+                }
+                else {
+                    // realTable.Destroy();
+                    $('#example').DataTable({
+                        destroy: true,
+                        data: dataSet,
+                        columns: [
+                            {title: "变电站名称"},
+                            {title: "型号"},
+                            {title: "塔号"},
+                            {title: "投运时间"},
+                            {title: "报告名称"},
+                            {title: "故障发现时间"},
+                            {title: "故障名称"},
+                            {title: "故障时情况"},
+                            {title: "电压等级"},
+                            {title: "缺陷等级"},
+                            {title: "设备类型"},
+                            {title: "报告详情"}
+                        ],
+                        "order": [ [5, "desc"] ],
+                        "lengthMenu": [ [5, 10, 25, -1], [5, 10, 25, "所有"] ],
+                        "language": {
+                            "sProcessing": "处理中...",
+                            "sLengthMenu": "显示 _MENU_ 项结果",
+                            "sZeroRecords": "没有匹配结果",
+                            "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                            "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                            "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                            "sInfoPostFix": "",
+                            "sSearch": "搜索:",
+                            "sUrl": "",
+                            "sEmptyTable": "表中数据为空",
+                            "sLoadingRecords": "载入中...",
+                            "sInfoThousands": ",",
+                            "oPaginate": {
+                                "sFirst": "首页",
+                                "sPrevious": "上页",
+                                "sNext": "下页",
+                                "sLast": "末页"
+                            },
+                            "oAria": {
+                                "sSortAscending": ": 以升序排列此列",
+                                "sSortDescending": ": 以降序排列此列"
+                            }
+                        }
+                    });
+                }
+            },
+            error: function (message) {
+                alert("提交数据失败！");
+            }
+        });
+
+    });
+
+
+</script>
+</body>
+</html>
