@@ -27,6 +27,16 @@ public class ErrorReport {
     private String description;
     private String situation;
     private String time_label;
+    private String whole_text;
+
+    public String getWhole_text() {
+        return whole_text;
+    }
+
+    public void setWhole_text(String whole_text) {
+        this.whole_text = whole_text;
+    }
+
     private int use_time_y;
     private int use_time_m;
     private int use_time_d;

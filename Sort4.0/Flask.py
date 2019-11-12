@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import json
 import Sort
+import re
 from flask_cors import *  # 导入模块
 from Algorithm.multi_label.advice import test
 app = Flask(__name__)
@@ -27,7 +28,12 @@ def advice_ai():
 
     json_data = json.loads(data.decode("utf-8"))
     test_content = json_data["desc"]
-    print("awsl",test_content)
+    st = "1.案例经过"
+    ed = "4.检测相关信息"
+    si = test_content.find(st)
+    ei = test_content.find(ed)
+    test_content = test_content[si:ei]
+    print("awsl",si,ei,test_content)
     ans = test(test_content)
     # print(test_content)
     res = {"succeed":1,"message":"success","data":ans}
