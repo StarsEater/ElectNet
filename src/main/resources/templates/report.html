@@ -113,8 +113,12 @@
             <div class="row">
                 <div class="col-md-6">
                     <div style="float: right;padding-top: 10px;margin-right: 20px;" class="row">
+                        <button id = "btn0" class="btn btn-default"> 故障检测</button>
+                        <button id = "btn1" class="btn btn-default"> 检修建议</button>
+                        <button id = "btn2" class="btn btn-default"> 源例推送</button>
                         <button id="save" class="btn btn-default">保存</button>
                         <button id="export" class="btn btn-default">导出pdf</button>
+
                     </div>
                     <div style="text-align: center;height: 600px;overflow-y: auto;margin-top: 45px; " id="export_content" >
                         <div id="report-title" class="templatemo-site-header">
@@ -223,39 +227,8 @@
                         </div>
                     </div>
                 </div>
-<!--                <div class="col-md-6"><iframe th:src="${pdf_src}" width="100%" height="640px" scrolling="yes">doc</iframe></div>-->
-                <div class="col-md-6" id="mend_advice" style="padding: 20px">
+                <div class="col-md-6"><iframe th:src="${pdf_src}" width="100%" height="640px" scrolling="yes">doc</iframe></div>
 
-                    <form>
-                        <div class="form-group">
-                            <label>设备类型</label><br/>
-                            <select id="class" class="form-control" title="请选择设备类型" data-live-search="true"
-                                    data-size="5" style="height: 4%; width:40%; margin-top: 10px">
-                                <option>避雷器</option>
-                                <option>变压器</option>
-                                <option>电缆</option>
-                                <option>互感器</option>
-                                <option>开关柜</option>
-                                <option>开关设备</option>
-                                <option>其他设备</option>
-                                <option>输电线路</option>
-                            </select><br/>
-                            <label>部件</label><br/>
-                            <select id="param" class="form-control" title="请选择部件" data-live-search="true" data-size="5" style="height: 4%; width:40%; margin-top: 10px">
-                            </select><br/>
-                            <label>故障</label><br/>
-                            <div style="width: 100%">
-                            <input class="form-control" id="error" placeholder="" style="height: 4%; width:40%; margin-top: 10px">
-                            <button id="btn0" style="width: 20% ; margin-top: 10px"  class="btn btn-default">故障检测</button>
-                            </div>
-                        </div>
-                    </form>
-                    <label>检修建议内容</label>
-                    <textarea class="form-control" cols="20" rows="11" name="des_content" id="des_content" placeholder="检修建议内容" style="width: 60%; margin-top: 10px"></textarea>
-                    <button id="btn1" style="width: 60%;margin-top: 10px"  class="btn btn-default">检修建议</button>
-                    <label style="width: 60%; margin-top: 40px" >源例推送</label>
-                    <button id="btn2"  target="_blank "style="width: 60%; margin-top: 10px" onclick ="exampleSearch()"  class="btn btn-default">源例推送</button>
-                </div>
             </div>
             <center>
                 <footer>
@@ -274,10 +247,6 @@
     var report = [[${report}]];
     console.log(baseurl);
     console.log(report);
-    function exampleSearch(){
-        window.location.href = baseurl +"/report/example";
-        console.log(baseurl +"/report/example")
-    }
     $(document).ready(function () {
         // var baseurl = [[${baseurl}]];
         var baseurl = "http://" + window.location.host;
@@ -325,6 +294,13 @@
 
 
         });
+        $("#btn2").click(function () {
+            var nurl = baseurl + "/report/source_example/"+report['report_id'];
+            console.log(nurl);
+            // window.location.href = nurl;
+            window.open(nurl);
+        });
+
 
     });
 

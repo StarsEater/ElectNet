@@ -67,8 +67,8 @@ public interface ErrorReportMapper {
             "concat_ws('-',err_time_y,err_time_m) as err_search , " +
             "concat_ws('-',use_time_y,use_time_m) as use_search  " +
             "FROM electric_err " +
-            "WHERE report_id in (${id});")
-    List<ErrorReport> selectExampleByID(@Param("id") String id);
+            "WHERE report_name in (${names});")
+    List<ErrorReport> selectExampleByName(@Param("names") String names);
 
     // 对某个字段分组计数
     @Select("SELECT err_season as con, count(*) as num " +

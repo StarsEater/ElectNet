@@ -146,23 +146,17 @@
     });
 </script>
 <script th:inline="javascript" type="text/javascript">
-    var s = ["1","2"];
-    var filter = {
-        id: s
-    };
-    console.log(filter);
+    var wholetext = [[${query_report.whole_text}]];
+    var filter1 ={"desc":wholetext};
+    console.log("yy"+filter1);
     dataSet = [];
-
-
     $(document).ready(function () {
-//        console.log([[${baseurl}]]);
-//         var baseurl = "http://localhost:443";
         var baseurl = "http://" + window.location.host;
         $('#content').css('min-height',window.innerHeight);
         $(window).resize(function() {
             console.log("hello"+window.innerHeight);
             $('#content').css('min-height',window.innerHeight);
-        })
+        });
         function parseBracket(str) {
             parsed = "";
             ll = str.split("、");
@@ -171,98 +165,119 @@
             }
             return parsed;
         }
+
+
+
         $.ajax({
             type: "POST",
-            url: baseurl + "/report/example/list",
+            url: "http://127.0.0.1:8088" + "/source_example",
+            crossDomain: true,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(filter),
+            data: JSON.stringify(filter1),
             dataType: "json",
             success: function (response) {
-                console.log(response);
-                var data = response.reports;
-                console.log(data);
+                data = JSON.parse(response.data);
+                console.log("xx", data);
                 if (data.length == 0) {
                     alert('没有找到报告');
                     return;
                 }
-
-                for (var i in data) {
-                    var report = data[i];
-                    row = [];
-                    row.push(report.substation);
-                    row.push(parseBracket(report.type_code));
-                    row.push(parseBracket(report.tower_code));
-                    row.push(report.use_time);
-                    row.push(report.report_name);
-                    row.push(report.err_time);
-                    row.push(report.err_name);
-                    row.push(report.err_how);
-                    row.push(report.volt);
-                    row.push(report.err_level);
-                    row.push(report.device_type);
-                    row.push('<a href="' + baseurl + '/report/detail/' + report.report_id + '" target="_blank">点击跳转</a>');
-                    dataSet.push(row);
-                }
-                if ($.fn.dataTable.isDataTable('#example')) {
-                    realTable = $('#example').DataTable();
-                    var currentPage = realTable.page();  //该行是固定写死的
-                    realTable.clear();//清理原数据
-                    realTable.rows.add(dataSet); //添加新数据
-                    realTable.page(currentPage).draw(false);
-                }
-                else {
-                    // realTable.Destroy();
-                    $('#example').DataTable({
-                        destroy: true,
-                        data: dataSet,
-                        columns: [
-                            {title: "变电站名称"},
-                            {title: "型号"},
-                            {title: "塔号"},
-                            {title: "投运时间"},
-                            {title: "报告名称"},
-                            {title: "故障发现时间"},
-                            {title: "故障名称"},
-                            {title: "故障时情况"},
-                            {title: "电压等级"},
-                            {title: "缺陷等级"},
-                            {title: "设备类型"},
-                            {title: "报告详情"}
-                        ],
-                        "order": [ [5, "desc"] ],
-                        "lengthMenu": [ [5, 10, 25, -1], [5, 10, 25, "所有"] ],
-                        "language": {
-                            "sProcessing": "处理中...",
-                            "sLengthMenu": "显示 _MENU_ 项结果",
-                            "sZeroRecords": "没有匹配结果",
-                            "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
-                            "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
-                            "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
-                            "sInfoPostFix": "",
-                            "sSearch": "搜索:",
-                            "sUrl": "",
-                            "sEmptyTable": "表中数据为空",
-                            "sLoadingRecords": "载入中...",
-                            "sInfoThousands": ",",
-                            "oPaginate": {
-                                "sFirst": "首页",
-                                "sPrevious": "上页",
-                                "sNext": "下页",
-                                "sLast": "末页"
-                            },
-                            "oAria": {
-                                "sSortAscending": ": 以升序排列此列",
-                                "sSortDescending": ": 以降序排列此列"
-                            }
+                var filter2 = {
+                    report_name: data
+                };
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + "/report/example/list",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(filter2),
+                    dataType: "json",
+                    success: function (response) {
+                        console.log(response);
+                        var data = response.reports;
+                        console.log(data);
+                        if (data.length == 0) {
+                            alert('没有找到报告');
+                            return;
                         }
-                    });
-                }
-            },
-            error: function (message) {
-                alert("提交数据失败！");
+
+                        for (var i in data) {
+                            var report = data[i];
+                            row = [];
+                            row.push(report.substation);
+                            row.push(parseBracket(report.type_code));
+                            row.push(parseBracket(report.tower_code));
+                            row.push(report.use_time);
+                            row.push(report.report_name);
+                            row.push(report.err_time);
+                            row.push(report.err_name);
+                            row.push(report.err_how);
+                            row.push(report.volt);
+                            row.push(report.err_level);
+                            row.push(report.device_type);
+                            row.push('<a href="' + baseurl + '/report/detail/' + report.report_id + '" target="_blank">点击跳转</a>');
+                            dataSet.push(row);
+                        }
+                        if ($.fn.dataTable.isDataTable('#example')) {
+                            realTable = $('#example').DataTable();
+                            var currentPage = realTable.page();  //该行是固定写死的
+                            realTable.clear();//清理原数据
+                            realTable.rows.add(dataSet); //添加新数据
+                            realTable.page(currentPage).draw(false);
+                        }
+                        else {
+                            // realTable.Destroy();
+                            $('#example').DataTable({
+                                destroy: true,
+                                data: dataSet,
+                                columns: [
+                                    {title: "变电站名称"},
+                                    {title: "型号"},
+                                    {title: "塔号"},
+                                    {title: "投运时间"},
+                                    {title: "报告名称"},
+                                    {title: "故障发现时间"},
+                                    {title: "故障名称"},
+                                    {title: "故障时情况"},
+                                    {title: "电压等级"},
+                                    {title: "缺陷等级"},
+                                    {title: "设备类型"},
+                                    {title: "报告详情"}
+                                ],
+                                "order": [ [5, "desc"] ],
+                                "lengthMenu": [ [5, 10, 25, -1], [5, 10, 25, "所有"] ],
+                                "language": {
+                                    "sProcessing": "处理中...",
+                                    "sLengthMenu": "显示 _MENU_ 项结果",
+                                    "sZeroRecords": "没有匹配结果",
+                                    "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                                    "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                                    "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                                    "sInfoPostFix": "",
+                                    "sSearch": "搜索:",
+                                    "sUrl": "",
+                                    "sEmptyTable": "表中数据为空",
+                                    "sLoadingRecords": "载入中...",
+                                    "sInfoThousands": ",",
+                                    "oPaginate": {
+                                        "sFirst": "首页",
+                                        "sPrevious": "上页",
+                                        "sNext": "下页",
+                                        "sLast": "末页"
+                                    },
+                                    "oAria": {
+                                        "sSortAscending": ": 以升序排列此列",
+                                        "sSortDescending": ": 以降序排列此列"
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function (message) {
+                        alert("提交数据失败！");
+                    }
+                });
             }
         });
-
     });
 
 

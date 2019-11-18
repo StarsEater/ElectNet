@@ -72,14 +72,14 @@ public class ReportController {
 
     // 搜索页面
     @RequestMapping(value = "/list",method = RequestMethod.GET)
-    public ResponseEntity<Map<String,Object>> getMessageById(@Param("key") String key
-            ,@Param("err_b")String err_b
-            ,@Param("err_e") String err_e
-            ,@Param("use_b") String use_b
-            ,@Param("use_e") String use_e
-            ,@Param("volt") String volt
-            ,@Param("err_device") String err_device
-            ,@Param("err_level") String err_level){
+    public ResponseEntity<Map<String,Object>> getMessageById(@RequestParam("key") String key
+            ,@RequestParam("err_b")String err_b
+            ,@RequestParam("err_e") String err_e
+            ,@RequestParam("use_b") String use_b
+            ,@RequestParam("use_e") String use_e
+            ,@RequestParam("volt") String volt
+            ,@RequestParam("err_device") String err_device
+            ,@RequestParam("err_level") String err_level){
         return reportService.getErrorReport(key,err_b,err_e,use_b,use_e,volt,err_device,err_level);
     }
 
@@ -98,18 +98,22 @@ public class ReportController {
         model.addAttribute("pdf_src",src.replace("#","-"));
         return "report";
     }
-    @RequestMapping(value = "/example",method = RequestMethod.GET)
-    public String getExample( Model model){
+    @RequestMapping(value = "/source_example/{id}",method = RequestMethod.GET)
+    public String getExample(@PathVariable String id, Model model){
         System.out.println("web123");
         model.addAttribute("baseurl", baseurl);
+        ErrorReport report = reportService.getFullReport(id);
+        model.addAttribute("query_report", report);
         return "example";
     }
 
 
     @RequestMapping(value = "/example/list",method = RequestMethod.POST)
-    public ResponseEntity<Map<String,Object>> getExampleById(@RequestBody JSONObject jsonObject){
+    public ResponseEntity<Map<String,Object>> getExampleByReportName(@RequestBody JSONObject jsonObject){
         System.out.println("wh"+"");
-        return reportService.getExampleBy_id((List<String>) jsonObject.get("id"));
+        List<String> a = (List<String>) jsonObject.get("report_name");
+        System.out.println(a.get(0));
+        return reportService.getExampleBy_report_name(a);
     }
     @RequestMapping(value = "/export/{id}",method = RequestMethod.GET)
     public String getExportHtmlById(@PathVariable String id, Model model){

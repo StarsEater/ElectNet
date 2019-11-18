@@ -73,6 +73,7 @@ class TextCNN(nn.Module):
 
     def forward(self, x):
         #         print(x.shape)
+        x = x.long()
         x = self.embedding(x)
         #         print(x.shape)
         x = x.unsqueeze(1)
@@ -103,7 +104,7 @@ def test(input_content):
     dict_stoi,dict_itos = train_si["stoi"],train_si["itos"]
     pclass = list(pd.read_csv(data_root+"class.csv",encoding = 'GB2312')["advice"])
     input_content = torch.tensor(list(map(lambda x : word2i(x,dict_stoi),word_cut(input_content))))
-    print("awsl",input_content.shape)
+    # print("awsl",input_content)
     res = model_t(input_content.unsqueeze(0)).squeeze(0)
     res = (res.float()/res.float().sum()).sort(descending = True)
 

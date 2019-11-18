@@ -4,6 +4,7 @@ import Sort
 import re
 from flask_cors import *  # 导入模块
 from Algorithm.multi_label.advice import test
+from Algorithm.source_example.run import example_push
 app = Flask(__name__)
 app.debug = True
 
@@ -32,12 +33,25 @@ def advice_ai():
     ed = "4.检测相关信息"
     si = test_content.find(st)
     ei = test_content.find(ed)
-    test_content = test_content[si:ei]
     print("awsl",si,ei,test_content)
+    if(si != -1 or ei != -1):
+        test_content = test_content[si:ei]
     ans = test(test_content)
     # print(test_content)
     res = {"succeed":1,"message":"success","data":ans}
+    return jsonify(res)
 
+@app.route("/source_example",methods = ['post'])
+def source_example_ai():
+    data = request.get_data()
+
+    json_data = json.loads(data.decode("utf-8"))
+    test_content = json_data["desc"]
+
+    print("awsl",test_content)
+    ans = example_push(test_content)
+    print(ans)
+    res = {"succeed":1,"message":"success","data":json.dumps(ans)}
     return jsonify(res)
 if __name__ == '__main__':
     CORS(app, supports_credentials=True)  # 设置跨域

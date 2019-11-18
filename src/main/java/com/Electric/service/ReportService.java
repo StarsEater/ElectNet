@@ -54,16 +54,16 @@ public class ReportService {
         reports = mapper.selectErrorReportByID(id);
         return reports.get(0);
     }
-    public ResponseEntity<Map<String,Object>> getExampleBy_id(List<String> id){
+    public ResponseEntity<Map<String,Object>> getExampleBy_report_name(List<String> reportlist){
         HashMap<String,Object> res = new HashMap<>();
         List<ErrorReport> reports = null;
         String ns = "";
-        for(String x:id){
-            ns += "\""+x+"\""+",";
+        for(String x:reportlist){
+            ns += "\""+x.substring(0,x.length()-4)+"\""+",";
         }
         ns += "\"\"";
         System.out.println("ids" + ns);
-        reports = mapper.selectExampleByID(ns);
+        reports = mapper.selectExampleByName(ns);
         res.put("reports",reports);
         res.put("succeed",1);
         res.put("message","success");
