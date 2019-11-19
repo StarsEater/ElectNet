@@ -3,7 +3,8 @@ import json
 import Sort
 import re
 from flask_cors import *  # 导入模块
-from Algorithm.multi_label.advice import test
+from Algorithm.multi_label.advice import test_advice
+from Algorithm.err_class.err import predict_err
 from Algorithm.source_example.run import example_push
 app = Flask(__name__)
 app.debug = True
@@ -23,6 +24,18 @@ app.debug = True
 #     # resp = Response(json_data)
 #     # resp.headers['Access-Control-Allow-Origin'] = '*'
 #     return 'successCallback(%s)' % json_data # 返回JSON数据。
+@app.route("/fault",methods = ['post'])
+def fault_detect():
+    data = request.get_data()
+
+    json_data = json.loads(data.decode("utf-8"))
+    test_content = json_data["desc"]
+    ans = predict_err(test_content)
+    # print(test_content)
+    res = {"succeed":1,"message":"success","data":ans}
+    return jsonify(res)
+
+
 @app.route("/advice",methods = ['post'])
 def advice_ai():
     data = request.get_data()
@@ -36,10 +49,12 @@ def advice_ai():
     print("awsl",si,ei,test_content)
     if(si != -1 or ei != -1):
         test_content = test_content[si:ei]
-    ans = test(test_content)
+    ans = test_advice(test_content)
     # print(test_content)
     res = {"succeed":1,"message":"success","data":ans}
     return jsonify(res)
+
+
 
 @app.route("/source_example",methods = ['post'])
 def source_example_ai():
@@ -53,6 +68,8 @@ def source_example_ai():
     print(ans)
     res = {"succeed":1,"message":"success","data":json.dumps(ans)}
     return jsonify(res)
+
+
 if __name__ == '__main__':
     CORS(app, supports_credentials=True)  # 设置跨域
     app.run(host='127.0.0.1', port=8088) # 这里指定了地址和端口号。

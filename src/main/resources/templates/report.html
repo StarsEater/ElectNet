@@ -265,7 +265,35 @@
             }
             return parsed;
         }
+        $("#btn0").click(function () {
+            var filter = {
+                "desc":report["whole_text"]
+            };
+            console.log(filter);
+            //  接入算法检修模块
+            //请求成功
+            // $("#btn2").attr("disabled",false);
 
+            //请求失败
+            $.ajax({
+                type: "POST",
+                url: "http://127.0.0.1:8088" + "/fault",
+                crossDomain: true,
+                contentType: "application/json; charset=utf-8",
+                data:JSON.stringify(filter),
+                dataType: "json",
+                success: function (response) {
+                    // $("#des_content").html(response.data)
+                    alert(response.data);
+                },
+                error: function (message) {
+                    alert("提交数据失败！");
+                }
+            });
+
+
+
+        });
         $("#btn1").click(function () {
             var filter = {
                 "desc":report["whole_text"]
@@ -284,7 +312,8 @@
                 data:JSON.stringify(filter),
                 dataType: "json",
                 success: function (response) {
-                    $("#des_content").html(response.data)
+                    // $("#des_content").html(response.data)
+                    alert(response.data);
                 },
                 error: function (message) {
                     alert("提交数据失败！");
